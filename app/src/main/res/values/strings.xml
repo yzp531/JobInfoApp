@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">Job Information</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="job_information">Job Information</string>
+    <string name="detail">Detail</string>
+    <string name="my_collection">My Collection</string>
+    <string name="like">Like</string>
 
 </resources>

@@ -6,4 +6,9 @@
         <!--android:title="@string/action_settings"-->
         <!--android:orderInCategory="100"-->
         <!--app:showAsAction="never" />-->
+    <item
+        android:id="@+id/collection"
+        android:title="@string/my_collection"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/collection" />
 </menu>

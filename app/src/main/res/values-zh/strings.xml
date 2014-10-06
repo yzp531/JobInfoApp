@@ -1,6 +1,8 @@
 <resources>
 
     <string name="app_name">就业信息</string>
-    <string name="job_information">招聘信息</string>
+    <string name="detail">详细信息</string>
+    <string name="my_collection">收藏夹</string>
+    <string name="like">喜欢</string>
 
 </resources>
