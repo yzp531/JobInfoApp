@@ -17,8 +17,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".JobInfoActivity"
-            android:label="@string/job_information" ></activity>
+            android:name=".DetailActivity"
+            android:label="@string/detail" ></activity>
+        <activity
+            android:name=".CollectionActivity"
+            android:label="@string/my_collection"></activity>
     </application>
 
 </manifest>
