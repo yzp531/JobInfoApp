@@ -7,7 +7,6 @@ public class JobInfo {
     private String date;
     private String title;
     private String corporation;
-    private boolean liked = false;
 
     protected JobInfo(String id, String date, String title, String corporation) {
         this.id = id;
@@ -30,9 +29,5 @@ public class JobInfo {
 
     public String getCorporation() {
         return corporation;
-    }
-
-    public void setLiked(boolean b) {
-        liked = b;
     }
 }

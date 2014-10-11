@@ -8,7 +8,6 @@ public class JobFair {
     private String corporation;
     private String time;
     private String place;
-    private boolean liked = false;
 
     protected JobFair(String id, String date, String title, String corporation, String time, String place) {
         this.id = id;
@@ -41,9 +40,5 @@ public class JobFair {
 
     public String getPlace() {
         return place;
-    }
-
-    public void setLiked(boolean b) {
-        liked = b;
     }
 }

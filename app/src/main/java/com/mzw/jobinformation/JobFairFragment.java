@@ -36,6 +36,7 @@ import java.util.Map;
 
 public class JobFairFragment extends Fragment{
 
+    private int page = 0;
     private ListView listview;
     private JobFairHandler jobFairHandler = new JobFairHandler();
     private ArrayList<JobFair> jobFairList = new ArrayList<JobFair>();
@@ -45,10 +46,12 @@ public class JobFairFragment extends Fragment{
         View view = inflater.inflate(R.layout.job_info_list, container, false);
         listview = (ListView)view.findViewById(R.id.listview);
 
-        JobFairThread jobFairThread = new JobFairThread();
-        jobFairThread.start();
-
+        View footer = LayoutInflater.from(getActivity()).inflate(R.layout.list_footer, null);
         listview.setOnItemClickListener(new JobFairListener());
+        listview.addFooterView(footer);
+
+        JobFairThread jobFairThread = new JobFairThread("" + page);
+        jobFairThread.start();
 
         return view;
     }
@@ -57,18 +60,25 @@ public class JobFairFragment extends Fragment{
 
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            JobFair jobFair = jobFairList.get(i);
-            Intent intent = new Intent();
+            if (i < jobFairList.size()) {
+                JobFair jobFair = jobFairList.get(i);
+                Intent intent = new Intent();
 
-            Bundle bundle = new Bundle();
-            bundle.putString("id", jobFair.getId());
-            bundle.putString("title", jobFair.getTitle());
-            bundle.putString("date", jobFair.getDate());
-            bundle.putString("type", "fair");
-            intent.putExtras(bundle);
+                Bundle bundle = new Bundle();
+                bundle.putString("id", jobFair.getId());
+                bundle.putString("title", jobFair.getTitle());
+                bundle.putString("date", jobFair.getDate());
+                bundle.putString("comp", jobFair.getTime() + " " + jobFair.getPlace() + "" + jobFair.getCorporation());
+                bundle.putString("type", "fair");
+                intent.putExtras(bundle);
 
-            intent.setClass(getActivity(), DetailActivity.class);
-            startActivity(intent);
+                intent.setClass(getActivity(), DetailActivity.class);
+                startActivity(intent);
+            } else {
+                page ++;
+                JobFairThread thread = new JobFairThread("" + page);
+                thread.start();
+            }
         }
     }
 
@@ -124,6 +134,12 @@ public class JobFairFragment extends Fragment{
 
     class JobFairThread extends Thread {
 
+        private String page;
+
+        public JobFairThread(String page) {
+            this.page = page;
+        }
+
         @Override
         public void run() {
             HttpClient httpClient = new DefaultHttpClient();
@@ -132,7 +148,7 @@ public class JobFairFragment extends Fragment{
             String url = "http://push-mobile.twtapps.net/content/list";
             HttpPost httpPost = new HttpPost(url);
             NameValuePair pair1 = new BasicNameValuePair("ctype", "fair");
-            NameValuePair pair2 = new BasicNameValuePair("page", "0");
+            NameValuePair pair2 = new BasicNameValuePair("page", page);
             ArrayList<NameValuePair> pairs = new ArrayList<NameValuePair>();
             pairs.add(pair1);
             pairs.add(pair2);

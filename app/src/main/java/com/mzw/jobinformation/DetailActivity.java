@@ -4,7 +4,10 @@ package com.mzw.jobinformation;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,7 +28,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,7 +40,16 @@ import java.util.ArrayList;
 public class DetailActivity extends Activity {
 
     private WebView webView;
+    private MenuItem likedItem;
+    private String id;
+    private String title;
+    private String date;
+    private String comp;
+    private String type;
     private DetailHandler detailHandler = new DetailHandler();
+    private static final String DATABASE_TABLE = "job_collection";
+    private SQLiteDatabase db;
+    private JobDBHelper dbHelper;
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -51,18 +62,27 @@ public class DetailActivity extends Activity {
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        TextView title = (TextView)findViewById(R.id.title);
-        TextView date = (TextView)findViewById(R.id.date);
+        TextView titleView = (TextView)findViewById(R.id.title);
+        TextView dateView = (TextView)findViewById(R.id.date);
         webView = (WebView)findViewById(R.id.webview);
+        dbHelper = new JobDBHelper(this);
+        db = dbHelper.getWritableDatabase();
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
 
-        DetailThread thread = new DetailThread(bundle.getString("type"), bundle.getString("id"));
+        id = bundle.getString("id");
+        title = bundle.getString("title");
+        date = bundle.getString("date");
+        comp = bundle.getString("comp");
+        type = bundle.getString("type");
+
+
+        DetailThread thread = new DetailThread(type, id);
         thread.start();
 
-        title.setText(bundle.getString("title"));
-        date.setText(bundle.getString("date"));
+        titleView.setText(title);
+        dateView.setText(date);
     }
 
     @Override
@@ -70,17 +90,25 @@ public class DetailActivity extends Activity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 this.finish();
+                break;
             case R.id.like:
-                System.out.println("I like it");
-            default:
-                return super.onOptionsItemSelected(item);
+                onLiked();
+                break;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.detail, menu);
+        likedItem = menu.findItem(R.id.like);
+        Cursor c = db.rawQuery("SELECT * FROM " + DATABASE_TABLE + " WHERE id=" + id, null);
+        if (c.getCount() == 0) {
+            likedItem.setIcon(R.drawable.like);
+        } else {
+            likedItem.setIcon(R.drawable.liked);
+        }
         return true;
     }
 
@@ -163,6 +191,23 @@ public class DetailActivity extends Activity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void onLiked() {
+        Cursor c = db.rawQuery("SELECT * FROM " + DATABASE_TABLE + " WHERE id=" + id, null);
+        ContentValues cv = new ContentValues();
+        if (c.getCount() == 0) {
+            cv.put("id", id);
+            cv.put("date", date);
+            cv.put("title", title);
+            cv.put("comp", comp);
+            cv.put("type", type);
+            db.insert(DATABASE_TABLE, null, cv);
+            likedItem.setIcon(R.drawable.liked);
+        } else {
+            db.delete(DATABASE_TABLE, "id=" + id, null);
+            likedItem.setIcon(R.drawable.like);
         }
     }
 }

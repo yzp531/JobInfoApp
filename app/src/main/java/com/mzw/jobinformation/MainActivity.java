@@ -114,15 +114,13 @@ public class MainActivity extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
             case R.id.collection:
                 Intent intent = new Intent();
                 intent.setClass(MainActivity.this, CollectionActivity.class);
                 startActivity(intent);
-            default:
-                return super.onOptionsItemSelected(item);
+                break;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

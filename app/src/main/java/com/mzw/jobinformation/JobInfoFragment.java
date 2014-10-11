@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,6 +38,7 @@ import java.util.Map;
 public class JobInfoFragment extends Fragment{
 
     private ListView listview;
+    private int page = 0;
     private JobInfoHandler jobInfoHandler = new JobInfoHandler();
     private ArrayList<JobInfo> jobInfoList = new ArrayList<JobInfo>();
 
@@ -45,10 +47,13 @@ public class JobInfoFragment extends Fragment{
         View view = inflater.inflate(R.layout.job_info_list, container, false);
         listview = (ListView) view.findViewById(R.id.listview);
 
-        JobInfoThread thread = new JobInfoThread();
+        JobInfoThread thread = new JobInfoThread("" + page);
         thread.start();
 
         listview.setOnItemClickListener(new JobInfoListener());
+
+        View footer = LayoutInflater.from(getActivity()).inflate(R.layout.list_footer, null);
+        listview.addFooterView(footer);
 
         return view;
     }
@@ -57,18 +62,27 @@ public class JobInfoFragment extends Fragment{
 
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            JobInfo jobInfo = jobInfoList.get(i);
-            Intent intent = new Intent();
+            if (i < jobInfoList.size()) {
+                System.out.println(i);
+                JobInfo jobInfo = jobInfoList.get(i);
+                Intent intent = new Intent();
 
-            Bundle bundle = new Bundle();
-            bundle.putString("id", jobInfo.getId());
-            bundle.putString("title", jobInfo.getTitle());
-            bundle.putString("date", jobInfo.getDate());
-            bundle.putString("type", "job");
-            intent.putExtras(bundle);
+                Bundle bundle = new Bundle();
+                bundle.putString("id", jobInfo.getId());
+                bundle.putString("title", jobInfo.getTitle());
+                bundle.putString("date", jobInfo.getDate());
+                bundle.putString("comp", jobInfo.getCorporation());
+                bundle.putString("type", "job");
+                intent.putExtras(bundle);
 
-            intent.setClass(getActivity(), DetailActivity.class);
-            startActivity(intent);
+                intent.setClass(getActivity(), DetailActivity.class);
+                startActivity(intent);
+            } else {
+                System.out.println("more");
+                page ++;
+                JobInfoThread thread = new JobInfoThread("" + page);
+                thread.start();
+            }
         }
     }
 
@@ -120,6 +134,12 @@ public class JobInfoFragment extends Fragment{
 
     class JobInfoThread extends Thread {
 
+        private String page;
+
+        public JobInfoThread(String page) {
+            this.page = page;
+        }
+
         @Override
         public void run() {
             HttpClient httpClient = new DefaultHttpClient();
@@ -128,7 +148,7 @@ public class JobInfoFragment extends Fragment{
             String url = "http://push-mobile.twtapps.net/content/list";
             HttpPost httpPost = new HttpPost(url);
             NameValuePair pair1 = new BasicNameValuePair("ctype", "job");
-            NameValuePair pair2 = new BasicNameValuePair("page", "0");
+            NameValuePair pair2 = new BasicNameValuePair("page", page);
             ArrayList<NameValuePair> pairs = new ArrayList<NameValuePair>();
             pairs.add(pair1);
             pairs.add(pair2);
